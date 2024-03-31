@@ -11,10 +11,16 @@ import { useActiveWallet } from "@/hooks/useActiveWallet";
 import useAsync from "react-use/lib/useAsync";
 import { BaseAssetId } from "fuels";
 import { AssetId } from "fuels";
+import dynamic from 'next/dynamic';
 
 const contractId = contractIds.testContract;
-
-const hasContract = process.env.NEXT_PUBLIC_HAS_CONTRACT === "true";
+const CreateProposal = dynamic(() => import('./createProposal'), {
+  ssr: false,
+});
+const LandingPage = dynamic(() => import('./landingpage'), {
+  ssr: false,
+});
+const hasContract = "true";
 const hasPredicate = process.env.NEXT_PUBLIC_HAS_PREDICATE === "true";
 const hasScript = process.env.NEXT_PUBLIC_HAS_SCRIPT === "true";
 
@@ -243,6 +249,7 @@ export default function Home() {
 
   return (
     <>
+      
       <div className="flex gap-4 items-center">
         <FuelLogo />
         <h1 className="text-2xl font-semibold ali">Welcome to Fuel</h1>
@@ -269,9 +276,7 @@ export default function Home() {
 
           <span className="text-gray-400 text-6xl">{proposal}</span>
 
-          <Button onClick={tp} className="mt-6">
-          create Proposal
-          </Button>
+      <CreateProposal/>
 
           
 
