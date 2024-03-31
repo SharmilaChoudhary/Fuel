@@ -1,7 +1,7 @@
 export const Button: React.FC<{
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e:any) => void;
 }> = ({ children, className, onClick }) => {
   return (
     <button

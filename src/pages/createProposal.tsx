@@ -19,12 +19,13 @@ const contractId = contractIds.testContract;
 
 
 function CreateProposal() {
-     const [acceptancePercentage, setAcceptancePercentage] = useState<BigNumberish>(0);
-  const [duration, setDuration] = useState<BigNumberish>(0);
+     const [acceptancePercentage, setAcceptancePercentage] = useState(0);
+  const [duration, setDuration] = useState(0);
     const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
     const [contract, setContract] = useState<TestContractAbi>();
     const hasContract = "true";
-    const [title, setTitle] = useState();
+    const [asset, setAsset] = useState("")
+    const [amount,setAmount]= useState(0);
 
     useAsync(async () => {
         if (hasContract && wallet) {
@@ -49,7 +50,7 @@ function CreateProposal() {
     }
     
     const createPropasals = async () => {
-    
+
         if (!contract) {
             return toast.error("Contract not loaded");
         }
@@ -60,9 +61,9 @@ function CreateProposal() {
             );
         }
         console.log("jsejhdxhe");
-        const { value } = await contract.functions.create_proposal(bn(10), bn(60), {
+        const  value  = await contract.functions.create_proposal(bn(acceptancePercentage), bn(duration), {
 
-            amount: 1000,
+            amount: amount,
             /// Asset Id of the coins to forward
             asset: {
                 value: BaseAssetId
@@ -72,7 +73,7 @@ function CreateProposal() {
 
             gas: bn(21000)
         }).call();
-
+console.log(value);
     }
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,12 +90,12 @@ function CreateProposal() {
     <input
       className="peer h-full w-full rounded-[7px] border border-green-500 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-green-500 placeholder-shown:border-t-green-500 focus:border-2 focus:border-green-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
       placeholder=" " 
-      type="BigNumberish"
+ 
      
-      onChange={(e) => setAcceptancePercentage(Number(e.target.value))}/>
+      onChange={(e) => setAsset(e.target.value)}/>
     <label
       className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-green-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-green-500 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-green-500 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-green-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-green-500 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-green-500 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-green-500 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-      Title
+      Asset ID
     </label>
     </div>
     
@@ -103,12 +104,12 @@ function CreateProposal() {
     <input
       className="peer h-full w-full rounded-[7px] border border-green-500 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-green-500 placeholder-shown:border-t-green-500 focus:border-2 focus:border-green-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
       placeholder=" " 
-      type="BigNumberish"
+    
      
-      onChange={(e) => setAcceptancePercentage(Number(e.target.value))}/>
+      onChange={(e) => setAmount(Number(e.target.value))}/>
     <label
       className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-green-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-green-500 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-green-500 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-green-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-green-500 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-green-500 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-green-500 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-      Description
+      Amount to forward
     </label>
     </div>
     
@@ -117,7 +118,7 @@ function CreateProposal() {
     <input
       className="peer h-full w-full rounded-[7px] border border-green-500 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-green-500 placeholder-shown:border-t-green-500 focus:border-2 focus:border-green-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
       placeholder=" " 
-      type="number"
+   
          
           onChange={(e) => setDuration(Number(e.target.value))}/>
     <label
@@ -130,7 +131,7 @@ function CreateProposal() {
     <input
       className="peer h-full w-full rounded-[7px] border border-green-500 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-green-500 placeholder-shown:border-t-green-500 focus:border-2 focus:border-green-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
       placeholder=" " 
-      type="BigNumberish"
+    
      
       onChange={(e) => setAcceptancePercentage(Number(e.target.value))}/>
     <label
@@ -142,7 +143,7 @@ function CreateProposal() {
    
    
       {/* Input fields for other properties of the proposal */}
-      <Button onClick={createPropasals} className="mt-6">
+                <Button onClick={(e: any) => { e.preventDefault();createPropasals()}  } className="mt-6">
           create Proposal
           </Button>
     </form>
