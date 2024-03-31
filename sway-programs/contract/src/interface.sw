@@ -30,6 +30,7 @@ abi DaoVoting {
     /// * When the acceptance percentage is greater than 100.
     #[storage(read, write)]
     fn create_proposal(
+        
         acceptance_percentage: u64,
         duration: u64,
         proposal_transaction: Proposal,

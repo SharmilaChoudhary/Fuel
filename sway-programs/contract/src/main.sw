@@ -70,6 +70,7 @@ impl DaoVoting for Contract {
 
     #[storage(read, write)]
     fn create_proposal(
+    
         acceptance_percentage: u64,
         duration: u64,
         proposal_transaction: Proposal,

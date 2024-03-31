@@ -29,6 +29,7 @@ pub struct Proposal {
 
 /// The voting information for a proposal.
 pub struct ProposalInfo {
+    
     /// The needed percentage of yes votes to execute a proposal.
     /// 0 < acceptance_percentage <= 100
     acceptance_percentage: u64,

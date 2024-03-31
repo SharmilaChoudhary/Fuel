@@ -43,7 +43,7 @@ export default function LandingPage() {
           
           <div className="text-center">
             <h1 className=" font-bold tracking-tight text-white-900 sm:text-6xl">
-             Decentralized <p className="text-fuel-green">Autonomous </p> Organizations
+             Decentralized <p className="text-fuel-green">Autonomous</p> Organizations
             </h1>
             <p className="mt-6 text-xl leading-8 text-white mb-12" style={{alignItems:"center", justifyContent:"center", display:"flex" }} >
                           Powered by <FuelLogo />
