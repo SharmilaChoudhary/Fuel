@@ -1,8 +1,46 @@
-import React, { useState } from "react";
-
+import type { TestContractAbi } from "@/sway-api";
+import toast from "react-hot-toast";
+import { useState } from "react";
+import { useActiveWallet } from "@/hooks/useActiveWallet";
+import { BaseAssetId } from "fuels";
+import { bn } from "fuels";
 const ProposalPage = () => {
+  const [contract, setContract] = useState<TestContractAbi>();
+  const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
   const [amount, setAmount] = useState("");
+  const deposit = async () => {
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
 
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet."
+      );
+    }
+
+    const value = await contract.functions
+      .deposit()
+      .callParams({
+        forward: [10, BaseAssetId],
+        gasLimit: 5000,
+      })
+      .call();
+  };
+
+  const withdraw = async () => {
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
+
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet."
+      );
+    }
+
+    const value = await contract.functions.withdraw(bn(1)).call();
+  };
   const handleDeposit = () => {
     // Logic for depositing amount
     console.log("Depositing:", amount);
