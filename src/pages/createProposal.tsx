@@ -12,7 +12,6 @@ import useAsync from "react-use/lib/useAsync";
 import { BaseAssetId } from "fuels";
 import React from 'react'
   
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import { Input } from "@/components/Input";
 
 const contractId = contractIds.testContract;
