@@ -75,6 +75,19 @@ function CreateProposal() {
 console.log(value);
     }
     
+    const constructt =async () => {
+      if (!contract) {
+        return toast.error("Contract not loaded");
+      }
+  
+      if (walletBalance?.eq(0)) {
+        return toast.error(
+          "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
+        );
+      }
+      const { value } = await contract.functions.constructor({value:"0x0000000000000000000000000000000000000000000000000000000000000000"}).call();
+      console.log(value);
+    }
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     }
@@ -144,6 +157,9 @@ console.log(value);
       {/* Input fields for other properties of the proposal */}
                 <Button onClick={(e: any) => { e.preventDefault();createPropasals()}  } className="mt-6">
           create Proposal
+          </Button>
+          <Button onClick={(e: any) => { e.preventDefault();constructt()}  } className="mt-6 mx-6">
+         Intialize
           </Button>
     </form>
     </>

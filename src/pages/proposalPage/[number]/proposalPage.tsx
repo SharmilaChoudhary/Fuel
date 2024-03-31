@@ -28,6 +28,7 @@ const ProposalPage = () => {
   const [contract, setContract] = useState<TestContractAbi>();
   const { wallet, walletBalance, refreshWalletBalance } = useActiveWallet();
   const [amount, setAmount] = useState("");
+  const [proposalDetails, setProposalDetails] = useState<any>({});
 
   useAsync(async () => {
     if (hasContract && wallet) {
@@ -45,16 +46,25 @@ const ProposalPage = () => {
 
 const ProposalInfo = async () => {
   const number = router.query.number;
-  console.log(wallet)
-  if (hasContract && wallet) {
-  
-    const testContract = TestContractAbi__factory.connect(contractId, wallet);
-    setContract(testContract);
-    const tx = await testContract.functions
-      .proposal(bn(number as string))
-      .get();
-    console.log(tx);
-  }
+    console.log(wallet);
+    if (hasContract && wallet) {
+      const testContract = TestContractAbi__factory.connect(contractId, wallet);
+      setContract(testContract);
+      const tx = await testContract.functions
+        .proposal(bn(number as string))
+        .get();
+      let proposal: any = {};
+      proposal.proposal_percentage = tx.value.acceptance_percentage.toNumber();
+      proposal.deadline = tx.value.deadline.toNumber();
+      proposal.for = tx.value.yes_votes.toNumber();
+      proposal.against = tx.value.no_votes.toNumber();
+      proposal.asset_id = tx.value.proposal_transaction.asset.value;
+      proposal.proposal_value = tx.value.proposal_transaction.amount.toNumber() ;
+      proposal.executed = tx.value.executed;
+      console.log(proposal);
+      setProposalDetails(proposal);
+      console.log(tx.value);
+    }
 };
   const deposit = async () => {
     if (!contract) {
@@ -89,14 +99,42 @@ const ProposalInfo = async () => {
 
     const value = await contract.functions.withdraw(bn(1)).call();
   };
-  const handleDeposit = () => {
+  const handleDeposit = async() => {
     // Logic for depositing amount
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
+
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
+      );
+    }
+
+    const value  = await contract.functions.deposit().callParams({
+      forward: [amount, BaseAssetId],
+      gasLimit: 5000,
+      }).call();
+
+ console.log(value)
     console.log("Depositing:", amount);
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async() => {
     // Logic for withdrawing amount
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
+
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
+      );
+    }
+
+    const value = await contract.functions.withdraw(bn(amount)).call();
     console.log("Withdrawing:", amount);
+    console.log(value)
   };
 
   const handleVote = () => {
@@ -125,26 +163,47 @@ const ProposalInfo = async () => {
     }
   }
 
-  // const voteagainst =async () => {
-  //   const number = router.query.number;
-  //   console.log("jvdjfkjcksjdfkfjs")
-  //   if (!contract) {
-  //     return toast.error("Contract not loaded");
-  //   }
+  const vote =async () => {
+    const number = router.query.number;
+    console.log("jvdjfkjcksjdfkfjs")
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
 
-  //   if (walletBalance?.eq(0)) {
-  //     return toast.error(
-  //       "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
-  //     );
-  //   }
-  //   try{
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
+      );
+    }
+    try{
 
-  //     const value  = await contract.functions.vote(false,bn(number as string),bn(1)).call();
-  //     console.log(value);
-  //   }catch(err){
-  //     console.log(err)
-  //   }
-  // }
+      const value  = await contract.functions.vote(true,bn(number as string),bn(1)).call();
+      console.log(value);
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+
+  const depositt =async () => {
+    if (!contract) {
+      return toast.error("Contract not loaded");
+    }
+
+    if (walletBalance?.eq(0)) {
+      return toast.error(
+        "Your wallet does not have enough funds. Please click the 'Top-up Wallet' button in the top right corner, or use the local faucet.",
+      );
+    }
+
+    const value  = await contract.functions.deposit().callParams({
+      forward: [amount, BaseAssetId],
+      gasLimit: 5000,
+      }).call();
+
+ console.log(value)
+      
+  }
 
   return (
     // <div className="p-4 bg-gray-100 rounded-lg shadow-md text-black">
@@ -180,35 +239,37 @@ const ProposalInfo = async () => {
     //     </button>
     //   </div>
     // </div>
+    // bg-black p-4 shadow rounded-xl border: 1px solid green-500
+    <div 
+    className="peer h-full w-full rounded-[7px] border border-green-500  bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-green-500 placeholder-shown:border-t-green-500 focus:border-2 focus:border-green-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+    >
+    
+      <p className="text-fuel-green font-semibold text-sm">Acceptance Percentage: {proposalDetails.proposal_percentage} %</p>
+      <p className="text-fuel-green text-sm font-semibold">Proposal Duration: {proposalDetails.deadline} sec</p>
+      <p className="text-fuel-green text-sm font-semibold"> Asset Id: {proposalDetails.asset_id} </p>
+      <p className="text-fuel-green text-sm font-semibold">Executed: {proposalDetails.executed ?"True" :"false"} </p>
+      <p className="text-fuel-green text-sm font-semibold">Proposal Amount: {proposalDetails.proposal_value}</p>
 
-    <div className="bg-white p-4 shadow rounded-xl">
-      <h3 className="text-xl font-bold text-black">proposal name</h3>
-      <p className="text-gray-500 text-sm">
-        {/* {`${humanizeDuration(
-    Date.now() - parseInt(proposal.args[4].toString(), 10) * 1000
-  )}`}{" "} */}
-        TIME
-      </p>
-      <p className="text-gray-500 text-sm">Acceptance Percentage: XX%</p>
-      <p className="text-gray-500 text-sm">Proposal Duration: XX days</p>
-      <p className="text-gray-600 text-sm">ASSET ID</p>
+
       <div className="flex space-x-8 mt-4">
         <div className="flex flex-col items-center">
-          <p className="text-gray-600 text-sm">Against Vote</p>
-          <p className="text-gray-800 text-lg font-semibold">VOTE AGAINST</p>
+          <p className="text-fuel-green text-sm font-semibold">Against Vote</p>
+          <p className="text-fuel-green text-lg font-semibold">{proposalDetails.against}</p>
           <button
             className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             onClick={async () => {voteagainst()}}
           >
             VoteAgainst
           </button>
+
+
         </div>
         <div className="flex flex-col items-center">
-          <p className="text-gray-600 text-sm">For Votes</p>
-          <p className="text-gray-800 text-lg font-semibold">VOTE FOR</p>
+          <p className="text-fuel-green text-sm font-semibold">For Votes</p>
+          <p className="text-fuel-green text-lg font-semibold">{proposalDetails.for}</p>
           <button
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md mt-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            onClick={async () => {}}
+            onClick={async () => {vote()}}
           >
             Vote
           </button>
@@ -216,14 +277,14 @@ const ProposalInfo = async () => {
       </div>
       <div className="flex items-center justify-center mt-4">
         <input
-          className="mr-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          className="mr-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-black"
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Enter amount"
         />
         <button
-          className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg mr-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          className="bg-green-500 hover:bg-green-600 text-black py-2 px-4 rounded-lg mr-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           onClick={handleDeposit}
         >
           Deposit
